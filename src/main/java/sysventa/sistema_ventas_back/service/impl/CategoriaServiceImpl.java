@@ -1,39 +1,39 @@
-package sysventa.sistema_ventas_back.persistence.impl;
+package sysventa.sistema_ventas_back.service.impl;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import sysventa.sistema_ventas_back.entities.Categoria;
 import sysventa.sistema_ventas_back.persistence.ICategoriaDAO;
-import sysventa.sistema_ventas_back.repository.CategoriaRepository;
+import sysventa.sistema_ventas_back.service.ICategoriaService;
 
-@Component
-public class CategoriaDAOImpl implements ICategoriaDAO {
+@Service
+public class CategoriaServiceImpl implements ICategoriaService {
 
     @Autowired
-    private CategoriaRepository categoriaRepository;
+    private ICategoriaDAO categoriaDAO;
 
     @Override
     public List<Categoria> findAll() {
-        return (List<Categoria>) categoriaRepository.findAll();
+        return categoriaDAO.findAll();
     }
 
     @Override
     public Optional<Categoria> findById(Long id) {
-        return categoriaRepository.findById(id);
+        return categoriaDAO.findById(id);
     }
 
     @Override
     public void save(Categoria categoria) {
-        categoriaRepository.save(categoria);
+        categoriaDAO.save(categoria);
     }
 
     @Override
     public void deleteById(Long id) {
-        categoriaRepository.deleteById(id);
+        categoriaDAO.deleteById(id);
     }
 
 }

@@ -1,39 +1,39 @@
-package sysventa.sistema_ventas_back.persistence.impl;
+package sysventa.sistema_ventas_back.service.impl;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import sysventa.sistema_ventas_back.entities.Proveedor;
 import sysventa.sistema_ventas_back.persistence.IProveedorDAO;
-import sysventa.sistema_ventas_back.repository.ProveedorRepository;
+import sysventa.sistema_ventas_back.service.IProveedorService;
 
-@Component
-public class ProveedorDAOImpl implements IProveedorDAO {
+@Service
+public class ProveedorServiceImpl implements IProveedorService {
 
     @Autowired
-    private ProveedorRepository proveedorRepository;
+    private IProveedorDAO proveedorDAO;
 
     @Override
     public List<Proveedor> findAll() {
-        return (List<Proveedor>) proveedorRepository.findAll();
+        return proveedorDAO.findAll();
     }
 
     @Override
     public Optional<Proveedor> findById(Long id) {
-        return proveedorRepository.findById(id);
+        return proveedorDAO.findById(id);
     }
 
     @Override
     public void save(Proveedor proveedor) {
-        proveedorRepository.save(proveedor);
+        proveedorDAO.save(proveedor);
     }
 
     @Override
     public void deleteById(Long id) {
-        proveedorRepository.deleteById(id);
+        proveedorDAO.deleteById(id);
     }
 
 }
