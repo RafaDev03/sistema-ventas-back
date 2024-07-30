@@ -38,7 +38,6 @@ public class CategoriaController {
             CategoriaDTO categoriaDTO = CategoriaDTO.builder()
                     .id(categoria.getId())
                     .nombre(categoria.getNombre())
-                    .productoList(categoria.getProductos())
                     .build();
             return ResponseEntity.ok(categoriaDTO);
         }
@@ -50,8 +49,7 @@ public class CategoriaController {
         List<Categoria> categoriaList = categoriaService.findAll();
 
         List<CategoriaDTO> categoriaDTOs = categoriaList.stream()
-                .map(categoria -> new CategoriaDTO(categoria.getId(), categoria.getNombre(),
-                        categoria.getProductos()))
+                .map(categoria -> new CategoriaDTO(categoria.getId(), categoria.getNombre()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(categoriaDTOs);
     }
@@ -67,10 +65,9 @@ public class CategoriaController {
                 .build();
         categoriaService.save(nuevaCategoria);
 
-        CategoriaDTO nuevaCategoriaDTO = new CategoriaDTO(nuevaCategoria.getId(), nuevaCategoria.getNombre(),
-                nuevaCategoria.getProductos());
+        CategoriaDTO nuevaCategoriaDTO = new CategoriaDTO(nuevaCategoria.getId(), nuevaCategoria.getNombre());
 
-        MensajeResponse mensajeResponse = new MensajeResponse("Categoría Creada", nuevaCategoriaDTO);
+        MensajeResponse mensajeResponse = new MensajeResponse(true, "Categoría Creada", nuevaCategoriaDTO);
 
         return ResponseEntity.created(new URI("/api/categoria/save"))
                 .body(mensajeResponse);
@@ -84,7 +81,7 @@ public class CategoriaController {
             Categoria categoria = categoriaOptional.get();
             categoria.setNombre(categoriaDTO.nombre());
             categoriaService.save(categoria);
-            MensajeResponse mensajeResponse = new MensajeResponse("Registro Actualizado", categoria);
+            MensajeResponse mensajeResponse = new MensajeResponse(true, "Registro Actualizado", categoria);
             return ResponseEntity.ok(mensajeResponse);
         }
         return ResponseEntity.notFound().build();
@@ -94,7 +91,7 @@ public class CategoriaController {
     public ResponseEntity<?> deleteCategoria(@PathVariable Long id) {
         if (id != null) {
             categoriaService.deleteById(id);
-            MensajeResponse mensajeResponse = new MensajeResponse("Registro eliminado", null);
+            MensajeResponse mensajeResponse = new MensajeResponse(true, "Registro eliminado", null);
             return ResponseEntity.ok(mensajeResponse);
         }
         return ResponseEntity.badRequest().build();

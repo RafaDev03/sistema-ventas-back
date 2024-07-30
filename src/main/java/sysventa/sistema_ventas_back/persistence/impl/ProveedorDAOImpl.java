@@ -18,12 +18,12 @@ public class ProveedorDAOImpl implements IProveedorDAO {
 
     @Override
     public List<Proveedor> findAll() {
-        return (List<Proveedor>) proveedorRepository.findAll();
+        return (List<Proveedor>) proveedorRepository.findByEstadoTrue();
     }
 
     @Override
     public Optional<Proveedor> findById(Long id) {
-        return proveedorRepository.findById(id);
+        return proveedorRepository.findByIdAndEstadoTrue(id);
     }
 
     @Override
