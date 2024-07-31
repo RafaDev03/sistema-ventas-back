@@ -100,7 +100,6 @@ public class ProveedorController {
         proveedor.setNombre(proveedorDTO.nombre());
         proveedor.setCorreo(proveedorDTO.correo());
         proveedor.setDireccion(proveedorDTO.direccion());
-        proveedor.setEstado(true);
         proveedor.setImagen(proveedorDTO.imagen());
         proveedor.setRuc(proveedorDTO.ruc());
         proveedor.setTelefono(proveedorDTO.telefono());

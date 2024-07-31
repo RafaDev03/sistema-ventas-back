@@ -18,12 +18,12 @@ public class CategoriaDAOImpl implements ICategoriaDAO {
 
     @Override
     public List<Categoria> findAll() {
-        return (List<Categoria>) categoriaRepository.findAll();
+        return (List<Categoria>) categoriaRepository.findByAndEstadoTrue();
     }
 
     @Override
     public Optional<Categoria> findById(Long id) {
-        return categoriaRepository.findById(id);
+        return categoriaRepository.findByIdAndEstadoTrue(id);
     }
 
     @Override

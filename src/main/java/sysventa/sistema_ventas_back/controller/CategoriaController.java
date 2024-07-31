@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,9 +40,11 @@ public class CategoriaController {
                     .id(categoria.getId())
                     .nombre(categoria.getNombre())
                     .build();
-            return ResponseEntity.ok(categoriaDTO);
+            MensajeResponse mensajeResponse = new MensajeResponse(true, "Categoria encontrada", categoriaDTO);
+            return ResponseEntity.ok(mensajeResponse);
         }
-        return ResponseEntity.notFound().build();
+        MensajeResponse mensajeResponse = new MensajeResponse(false, "La categoría no se encuentra disponible", null);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensajeResponse);
     }
 
     @GetMapping("/findAll")
@@ -51,7 +54,8 @@ public class CategoriaController {
         List<CategoriaDTO> categoriaDTOs = categoriaList.stream()
                 .map(categoria -> new CategoriaDTO(categoria.getId(), categoria.getNombre()))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(categoriaDTOs);
+        MensajeResponse mensajeResponse = new MensajeResponse(true, "Lista de categorias", categoriaDTOs);
+        return ResponseEntity.ok(mensajeResponse);
     }
 
     @PostMapping("/save")
@@ -62,6 +66,7 @@ public class CategoriaController {
 
         Categoria nuevaCategoria = Categoria.builder()
                 .nombre(categoriaDTO.nombre())
+                .estado(true)
                 .build();
         categoriaService.save(nuevaCategoria);
 
@@ -84,17 +89,31 @@ public class CategoriaController {
             MensajeResponse mensajeResponse = new MensajeResponse(true, "Registro Actualizado", categoria);
             return ResponseEntity.ok(mensajeResponse);
         }
-        return ResponseEntity.notFound().build();
+        MensajeResponse mensajeResponse = new MensajeResponse(true,
+                "El registro que quiere actualizar no se encuentra disponible", null);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensajeResponse);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteCategoria(@PathVariable Long id) {
-        if (id != null) {
-            categoriaService.deleteById(id);
+        if (id == null) {
+            MensajeResponse mensajeResponse = new MensajeResponse(false,
+                    "Agregar el id  del registro en el parametro", null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensajeResponse);
+        }
+        Optional<Categoria> categorOptional = categoriaService.findById(id);
+        if (categorOptional.isPresent()) {
+            Categoria categoria = categorOptional.get();
+            categoria.setEstado(false);
+            categoriaService.save(categoria);
             MensajeResponse mensajeResponse = new MensajeResponse(true, "Registro eliminado", null);
             return ResponseEntity.ok(mensajeResponse);
         }
-        return ResponseEntity.badRequest().build();
+
+        MensajeResponse mensajeResponse = new MensajeResponse(false,
+                "El registro que quiere eliminar no se encuentra disponible", null);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensajeResponse);
     }
 
 }
