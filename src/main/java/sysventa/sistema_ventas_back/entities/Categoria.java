@@ -2,6 +2,8 @@ package sysventa.sistema_ventas_back.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -28,5 +30,6 @@ public class Categoria {
     private String nombre;
     private boolean estado;
     @OneToMany(targetEntity = Producto.class, fetch = FetchType.LAZY, mappedBy = "categoria")
+    @JsonManagedReference
     private List<Producto> productos;
 }

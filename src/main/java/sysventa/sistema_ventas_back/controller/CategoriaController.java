@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+
 import sysventa.sistema_ventas_back.controller.dto.CategoriaDTO;
 import sysventa.sistema_ventas_back.controller.dto.MensajeResponse;
 import sysventa.sistema_ventas_back.entities.Categoria;
@@ -49,13 +51,18 @@ public class CategoriaController {
 
     @GetMapping("/findAll")
     public ResponseEntity<?> createCategoria() {
-        List<Categoria> categoriaList = categoriaService.findAll();
+        try {
+            List<Categoria> categoriaList = categoriaService.findAll();
 
-        List<CategoriaDTO> categoriaDTOs = categoriaList.stream()
-                .map(categoria -> new CategoriaDTO(categoria.getId(), categoria.getNombre()))
-                .collect(Collectors.toList());
-        MensajeResponse mensajeResponse = new MensajeResponse(true, "Lista de categorias", categoriaDTOs);
-        return ResponseEntity.ok(mensajeResponse);
+            List<CategoriaDTO> categoriaDTOs = categoriaList.stream()
+                    .map(categoria -> new CategoriaDTO(categoria.getId(), categoria.getNombre()))
+                    .collect(Collectors.toList());
+            MensajeResponse mensajeResponse = new MensajeResponse(true, "Lista de categorias", categoriaDTOs);
+            return ResponseEntity.ok(mensajeResponse);
+        } catch (JWTVerificationException e) {
+            return ResponseEntity.badRequest().body(new MensajeResponse(false, e.getMessage(), null));
+        }
+
     }
 
     @PostMapping("/save")

@@ -1,6 +1,7 @@
 package sysventa.sistema_ventas_back.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -30,7 +31,28 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
+
+                    // Api para la autenticacion
                     http.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll();
+
+                    // Api proveedores
+                    http.requestMatchers(HttpMethod.GET, "/api/proveedor/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.POST, "/api/proveedor/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.PUT, "/api/proveedor/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.DELETE, "/api/proveedor/**").hasRole("ADMIN");
+
+                    // Api productos
+                    http.requestMatchers(HttpMethod.GET, "/api/producto/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.POST, "/api/producto/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.PUT, "/api/producto/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.DELETE, "/api/producto/**").hasRole("ADMIN");
+
+                    // Api categorías
+                    http.requestMatchers(HttpMethod.GET, "/api/categoria/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.POST, "/api/categoria/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.PUT, "/api/categoria/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.DELETE, "/api/categoria/**").hasRole("ADMIN");
+
                     http.anyRequest().denyAll();
                 })
                 .addFilterBefore(new JwtTokenValitador(jwtUtils), BasicAuthenticationFilter.class)

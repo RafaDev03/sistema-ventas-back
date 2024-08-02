@@ -2,6 +2,9 @@ package sysventa.sistema_ventas_back.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -35,6 +38,7 @@ public class Producto {
     private String imagen;
 
     @ManyToOne(targetEntity = Categoria.class)
+    @JsonBackReference
     private Categoria categoria;
 
     @ManyToMany(targetEntity = Proveedor.class, fetch = FetchType.LAZY)
