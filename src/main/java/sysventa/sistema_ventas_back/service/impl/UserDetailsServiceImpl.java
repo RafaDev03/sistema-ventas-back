@@ -1,7 +1,11 @@
 package sysventa.sistema_ventas_back.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Optional;
+
+import javax.management.RuntimeMBeanException;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,9 +20,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import sysventa.sistema_ventas_back.controller.dto.AuthRequestDTO;
 import sysventa.sistema_ventas_back.controller.dto.AuthResponseDTO;
+import sysventa.sistema_ventas_back.entities.RefreshToken;
 import sysventa.sistema_ventas_back.entities.Usuario;
+import sysventa.sistema_ventas_back.repository.RefreshTokenRepository;
 import sysventa.sistema_ventas_back.repository.UsuarioRepository;
 import sysventa.sistema_ventas_back.util.JwtUtils;
 
@@ -27,6 +35,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -59,9 +70,36 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Authentication authentication = this.authenticate(username, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = jwtUtils.createToken(authentication);
+        String refeshToken = jwtUtils.createRefreshToken(authRequestDTO.username());
         AuthResponseDTO authResponseDTO = new AuthResponseDTO(username, "Usuario legeado correctamente", accessToken,
+                refeshToken,
                 true);
         return authResponseDTO;
+    }
+
+    public AuthResponseDTO refreshToken(String refreshToken) {
+        // Valida y decodifica el refresh token
+        DecodedJWT decodedJWT = jwtUtils.validateToken(refreshToken);
+        String username = jwtUtils.extracUsername(decodedJWT);
+
+        // Verifica el token de refresh en la base de datos
+        RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("Refresh token inválido"));
+
+        if (storedToken.getExpiryDate().before(new Date())) {
+            throw new RuntimeException("Refresh token ha expirado");
+        }
+        UserDetails userDetails = loadUserByUsername(username);
+        // Creando el nuevo access token
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
+                userDetails.getPassword(), userDetails.getAuthorities());
+        String newAccessToken = jwtUtils.createToken(authentication);
+
+        String newRefreshToken = jwtUtils.createRefreshToken(username);
+
+        // Actualiza el refresh token en la base de datos
+
+        return new AuthResponseDTO(username, "Token renovado correctamente", newAccessToken, newRefreshToken, true);
     }
 
     public Authentication authenticate(String username, String password) {
@@ -76,6 +114,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(),
                 userDetails.getAuthorities());
 
+    }
+
+    public void logout(String username) {
+        jwtUtils.deleteRefreshToken(username);
     }
 
 }

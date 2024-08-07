@@ -1,5 +1,7 @@
 package sysventa.sistema_ventas_back.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +28,25 @@ public class AuthController {
             AuthResponseDTO authResponseDTO = this.userDetailsServiceImpl.loginUser(authRequestDTO);
             return new ResponseEntity<>(authResponseDTO, HttpStatus.OK);
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(new AuthResponseDTO(null, e.getMessage(), null, false),
+            return new ResponseEntity<>(new AuthResponseDTO(null, e.getMessage(), null, null, false),
                     HttpStatus.UNAUTHORIZED);
         } catch (UsernameNotFoundException e) {
-            return new ResponseEntity<>(new AuthResponseDTO(null, e.getMessage(), null, false),
+            return new ResponseEntity<>(new AuthResponseDTO(null, e.getMessage(), null, null, false),
                     HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponseDTO> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        try {
+            AuthResponseDTO authResponseDTO = this.userDetailsServiceImpl.refreshToken(refreshToken);
+            return new ResponseEntity<>(authResponseDTO, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            AuthResponseDTO authResponseDTO = new AuthResponseDTO(null, e.getMessage(), null, null, false);
+            return new ResponseEntity<>(authResponseDTO, HttpStatus.UNAUTHORIZED);
+        }
+
     }
 
 }
