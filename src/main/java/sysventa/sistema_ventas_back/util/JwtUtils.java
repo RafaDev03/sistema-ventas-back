@@ -2,6 +2,7 @@ package sysventa.sistema_ventas_back.util;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,9 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import sysventa.sistema_ventas_back.entities.RefreshToken;
+import sysventa.sistema_ventas_back.entities.Usuario;
 import sysventa.sistema_ventas_back.repository.RefreshTokenRepository;
+import sysventa.sistema_ventas_back.repository.UsuarioRepository;
 
 /**
  * JwtUtils
@@ -40,7 +43,13 @@ public class JwtUtils {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    public static final long JWT_ACCESS_TOKEN_VALIDITY = 1000 * 60 * 15; // 15 minutes
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    // public static final long JWT_ACCESS_TOKEN_VALIDITY = 1000 * 60 * 1; // 1
+    // minutes
+    public static final long JWT_ACCESS_TOKEN_VALIDITY = 1000 * 60 * 3; // 3 minutos
+
     public static final long JWT_REFRESH_TOKEN_VALIDITY = 1000 * 60 * 60 * 24 * 7; // 7 days
 
     public String createToken(Authentication authentication) {
@@ -68,10 +77,15 @@ public class JwtUtils {
     }
 
     public String createRefreshToken(String username) {
+        Optional<RefreshToken> oldTokenOptional = this.refreshTokenRepository.findByUsername(username);
+        oldTokenOptional.ifPresent(token -> refreshTokenRepository.delete(token));
+
         String refreshToken = createRefreshToken(username, JWT_REFRESH_TOKEN_VALIDITY);
         RefreshToken token = new RefreshToken();
+        Optional<Usuario> usuario = this.usuarioRepository.findUsuarioByUsername(username);
         token.setToken(refreshToken);
         token.setUsername(username);
+        token.setUser(usuario.get());
         token.setExpiryDate(new Date(System.currentTimeMillis() + JWT_REFRESH_TOKEN_VALIDITY));
         refreshTokenRepository.save(token);
         return refreshToken;

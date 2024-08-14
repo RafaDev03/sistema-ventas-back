@@ -40,6 +40,7 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> refreshToken(@RequestBody Map<String, String> request) {
         String refreshToken = request.get("refreshToken");
         try {
+            System.out.println("Entrando a hacer la peticion");
             AuthResponseDTO authResponseDTO = this.userDetailsServiceImpl.refreshToken(refreshToken);
             return new ResponseEntity<>(authResponseDTO, HttpStatus.OK);
         } catch (RuntimeException e) {

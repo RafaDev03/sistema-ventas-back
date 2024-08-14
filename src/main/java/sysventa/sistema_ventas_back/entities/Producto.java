@@ -1,10 +1,14 @@
 package sysventa.sistema_ventas_back.entities;
 
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import io.micrometer.common.lang.NonNull;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -31,6 +35,7 @@ public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
+
     private String nombre;
     private Double precio;
     private Integer stock;
@@ -44,5 +49,24 @@ public class Producto {
     @ManyToMany(targetEntity = Proveedor.class, fetch = FetchType.LAZY)
     @JoinTable(name = "producto_proveedor", joinColumns = @JoinColumn(name = "producto"), inverseJoinColumns = @JoinColumn(name = "proveedor"))
     private List<Proveedor> provedores;
+
+    @ManyToOne(targetEntity = Usuario.class)
+    @JsonManagedReference
+    @JoinColumn(name = "usuario_alta_id")
+    private Usuario usuarioAltaId;
+
+    @Column(name = "fecha_creacion")
+    private Date fechaCreacion;
+
+    @ManyToOne(targetEntity = Usuario.class)
+    @JsonBackReference
+    @JoinColumn(name = "usuario_modi_id")
+    private Usuario usuarioModiId;
+
+    @Column(name = "fecha_modi")
+    private Date fechaMofi;
+
+    @ManyToOne(targetEntity = Marca.class)
+    private Marca marca;
 
 }
