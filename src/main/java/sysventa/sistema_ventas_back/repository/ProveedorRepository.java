@@ -12,4 +12,5 @@ public interface ProveedorRepository extends CrudRepository<Proveedor, Long> {
     Optional<Proveedor> findByIdAndEstadoTrue(Long id);
 
     List<Proveedor> findByEstadoTrue();
+
 }

@@ -14,4 +14,6 @@ public interface IProveedorDAO {
     void save(Proveedor proveedor);
 
     void deleteById(Long id);
+
+    List<Proveedor> findAllById(List<Long> ids);
 }

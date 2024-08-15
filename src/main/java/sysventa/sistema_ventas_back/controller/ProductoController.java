@@ -1,6 +1,8 @@
 package sysventa.sistema_ventas_back.controller;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,13 +15,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+
 import sysventa.sistema_ventas_back.controller.dto.CategoriaDTO;
 import sysventa.sistema_ventas_back.controller.dto.MensajeResponse;
 import sysventa.sistema_ventas_back.controller.dto.ProductoDTO;
 import sysventa.sistema_ventas_back.entities.Categoria;
 import sysventa.sistema_ventas_back.entities.Producto;
+import sysventa.sistema_ventas_back.entities.Proveedor;
+
 import sysventa.sistema_ventas_back.service.ICategoriaService;
 import sysventa.sistema_ventas_back.service.IProductoService;
+import sysventa.sistema_ventas_back.service.IProveedorService;
 
 @Controller
 @RequestMapping("/api/producto")
@@ -31,40 +38,67 @@ public class ProductoController {
     @Autowired
     private ICategoriaService categoriaService;
 
-    // @GetMapping("/findAll")
-    // public ResponseEntity<?> findAll() {
-    // List<Producto> listProducto = productoService.findAll();
+    @Autowired
+    private IProveedorService proveedorService;
 
-    // List<ProductoDTO> productoDTOs = listProducto.stream()
-    // .map(producto -> new ProductoDTO(producto.getId(), producto.getNombre(),
-    // producto.getPrecio(),
-    // producto.getStock(), producto.getImagen(), producto.getCategoria().getId()))
-    // .collect(Collectors.toList());
-    // MensajeResponse mensajeResponse = new MensajeResponse(true, "Lista de
-    // productos", productoDTOs);
-    // return ResponseEntity.ok().body(mensajeResponse);
+    @GetMapping("/findAll")
+    public ResponseEntity<?> findAll() {
+        try {
+            List<Producto> listProducto = productoService.findAll();
+            List<ProductoDTO> productoDTOs = listProducto.stream()
+                    .map(producto -> {
+                        List<Long> proveedorIds = producto.getProvedores().stream()
+                                .map(proveedor -> proveedor.getId()).collect(Collectors.toList());
+                        return new ProductoDTO(producto.getId(), producto.getNombre(), producto.getPrecio(),
+                                producto.getStock(), producto.getImagen(), producto.getCategoria().getId(),
+                                proveedorIds,
+                                null, producto.getFechaCreacion(),
+                                producto.getFechaMofi());
+                    })
+                    .collect(Collectors.toList());
 
-    // }
+            MensajeResponse mensajeResponse = new MensajeResponse(true, "Lista de Productos", productoDTOs);
+            return ResponseEntity.ok(mensajeResponse);
+        } catch (JWTVerificationException e) {
+            return ResponseEntity.badRequest().body(new MensajeResponse(false, e.getMessage(), null));
+        }
+    }
 
-    // @PostMapping("/save")
-    // public ResponseEntity<?> createPructo(@RequestBody ProductoDTO productoDTO) {
+    @PostMapping("/save")
+    public ResponseEntity<?> guardarProducto(@RequestBody ProductoDTO productoDTO) {
 
-    // Optional<Categoria> categoriaOptional =
-    // categoriaService.findById(productoDTO.categoriaId());
-    // if (!categoriaOptional.isPresent()) {
-    // throw new RuntimeException("Categoría no encontrada");
-    // }
+        try {
+            if (productoDTO != null) {
+                // Buscando la categoría
+                Optional<Categoria> categoriaOpt = categoriaService.findById(productoDTO.categoriaId());
+                // Buscando los proveeedores|
+                List<Proveedor> proveedores = proveedorService.findAllById(productoDTO.proveedoresId());
 
-    // Producto producto = new Producto()
-    // .builder()
-    // .nombre(productoDTO.nombre())
-    // .precio(productoDTO.precio())
-    // .stock(productoDTO.stock())
-    // .imagen(productoDTO.imagen())
-    // .categoria(categoriaOptional.get())
-    // .build();
+                Producto producto = Producto
+                        .builder()
+                        .estado(true)
+                        .nombre(productoDTO.nombre())
+                        .precio(productoDTO.precio())
+                        .stock(productoDTO.stock())
+                        .imagen(productoDTO.imagen())
+                        .categoria(categoriaOpt.get())
+                        .provedores(proveedores)
+                        .usuarioAltaId(null)
+                        .fechaCreacion(new Date())
+                        .fechaMofi(new Date())
+                        .usuarioModiId(null)
+                        .build(); // Buscando el usuario
+                productoService.save(producto);
+                MensajeResponse mensajeResponse = new MensajeResponse(true, "Producto Creado", producto);
+                return ResponseEntity.created(new URI("/api/producto/save")).body(mensajeResponse);
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } catch (Exception e) {
 
-    // return null;
-    // }
+        }
+
+        return null;
+    }
 
 }

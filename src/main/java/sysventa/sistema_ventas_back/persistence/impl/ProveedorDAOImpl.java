@@ -36,4 +36,9 @@ public class ProveedorDAOImpl implements IProveedorDAO {
         proveedorRepository.deleteById(id);
     }
 
+    @Override
+    public List<Proveedor> findAllById(List<Long> ids) {
+        return (List<Proveedor>) proveedorRepository.findAllById(ids);
+    }
+
 }

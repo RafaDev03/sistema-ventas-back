@@ -36,4 +36,9 @@ public class ProveedorServiceImpl implements IProveedorService {
         proveedorDAO.deleteById(id);
     }
 
+    @Override
+    public List<Proveedor> findAllById(List<Long> ids) {
+        return proveedorDAO.findAllById(ids);
+    }
+
 }
