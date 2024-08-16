@@ -3,23 +3,28 @@ package sysventa.sistema_ventas_back;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import sysventa.sistema_ventas_back.entities.ERole;
 import sysventa.sistema_ventas_back.entities.Permiso;
+import sysventa.sistema_ventas_back.entities.Producto;
 import sysventa.sistema_ventas_back.entities.Proveedor;
 import sysventa.sistema_ventas_back.entities.Rol;
 import sysventa.sistema_ventas_back.entities.Usuario;
 import sysventa.sistema_ventas_back.repository.ProveedorRepository;
 import sysventa.sistema_ventas_back.repository.UsuarioRepository;
+import sysventa.sistema_ventas_back.service.IProductoService;
+import sysventa.sistema_ventas_back.service.IProveedorService;
 
 @SpringBootApplication
 public class SistemaVentasBackApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SistemaVentasBackApplication.class, args);
+
 	}
 
 	// @Bean

@@ -3,7 +3,6 @@ package sysventa.sistema_ventas_back.config.filter;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
