@@ -42,9 +42,9 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.DELETE, "/api/proveedor/**").hasRole("ADMIN");
 
                     // Api productos
-                    http.requestMatchers(HttpMethod.GET, "/api/producto/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.GET, "/api/producto/**").hasAnyRole("ADMIN", "USER", "DEVELOPER");
                     http.requestMatchers(HttpMethod.POST, "/api/producto/**").hasAnyRole("ADMIN", "USER");
-                    http.requestMatchers(HttpMethod.PUT, "/api/producto/**").hasAnyRole("ADMIN", "USER");
+                    http.requestMatchers(HttpMethod.PUT, "/api/producto/**").hasAnyRole("ADMIN", "USER", "DEVELOPER");
                     http.requestMatchers(HttpMethod.DELETE, "/api/producto/**").hasRole("ADMIN");
 
                     // Api categorías
